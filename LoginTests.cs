@@ -20,7 +20,7 @@ namespace TestProject2
         {
             var chromeOptions = new ChromeOptions();
 
-            chromeOptions.AddArgument("headless");
+            //chromeOptions.AddArgument("headless");
 
             _driver = new ChromeDriver(chromeOptions);
 
@@ -39,6 +39,16 @@ namespace TestProject2
             var getLoggedIn = _loginPage.IsLoggedIn();
             Assert.That(getLoggedIn.Item1);
             Assert.That(Regex.IsMatch(getLoggedIn.Item2, welcomeMessagePattern));
+        }
+
+        [Test]
+        public void T02_Login_ValidCredentials_Loggout()
+        {
+            _loginPage.Login("nahuelrmaury@gmail.com", "teclado123!");
+            _loginPage.Logout();
+
+            var getLoggedOut = _loginPage.IsLoggedOut();
+            Assert.That(() => getLoggedOut, Is.True);
         }
 
         [TearDown]
