@@ -13,6 +13,8 @@ namespace TestProject2
 
         private static LoginPage _loginPage;
 
+        private static CreateAccountPage _createAccountPage;
+
         string welcomeMessagePattern = @"^Welcome, .+!$";
 
         [SetUp]
@@ -20,7 +22,7 @@ namespace TestProject2
         {
             var chromeOptions = new ChromeOptions();
 
-            //chromeOptions.AddArgument("headless");
+            chromeOptions.AddArgument("headless");
 
             _driver = new ChromeDriver(chromeOptions);
 
@@ -29,6 +31,8 @@ namespace TestProject2
             _driver.Navigate().GoToUrl("https://magento.softwaretestingboard.com/");
 
             _loginPage = new LoginPage(_driver);
+
+            _createAccountPage = new CreateAccountPage(_driver);
         }
 
         [Test]
@@ -48,7 +52,26 @@ namespace TestProject2
             _loginPage.Logout();
 
             var getLoggedOut = _loginPage.IsLoggedOut();
-            Assert.That(() => getLoggedOut, Is.True);
+            Assert.That(getLoggedOut, Is.True);
+        }
+
+        [Test]
+        public void T03_Login_InvalidCredentials_WarningMessage()
+        {
+            _loginPage.Login("nahuelrmaury@gmail.com", "123456");
+
+            var isCredentialInvalid = _loginPage.IsCredentialInvalid();
+            Assert.That(isCredentialInvalid.Item1);
+            Assert.That("The account sign-in was incorrect or your account is disabled temporarily. Please wait and try again later.", Is.EqualTo(isCredentialInvalid.Item2));
+        }
+
+        [Test]
+        public void T04_CreateAccount_ValidCredentials_AccountCreated()
+        {
+            _createAccountPage.CreateAccount();
+            var isAcountCreated = _loginPage.IsAccountCreated();
+            Assert.That(isAcountCreated.Item1);
+            Assert.That("Thank you for registering with Main Website Store.", Is.EqualTo(isAcountCreated.Item2));
         }
 
         [TearDown]

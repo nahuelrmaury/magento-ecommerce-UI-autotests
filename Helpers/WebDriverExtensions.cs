@@ -11,5 +11,6 @@ namespace TestProject2.Helpers
             WebDriverWait wait = new WebDriverWait(driver, timeout);
             return wait.Until(ExpectedConditions.ElementExists(by));
         }
+
     }
 }

@@ -16,6 +16,9 @@ namespace TestProject2.Pages
         private By WelcomeMessageLocator = By.ClassName("logged-in");
         private By ProfileDropdownButtonLocator = By.CssSelector("div[class='panel header'] button[type='button']");
         private By SignOutMessageLocator = By.ClassName("base");
+        private By CredentialInvalidMessageLocator = By.CssSelector("div[data-bind='html: $parent.prepareMessageForHtml(message.text)']");
+        private By CreatedAccountMessageLocator = By.CssSelector("div[data-bind='html: $parent.prepareMessageForHtml(message.text)']");
+
 
         // Web Elements
         private IWebElement SignInButton => _driver.FindElement(SignInButtonLocator);
@@ -25,30 +28,47 @@ namespace TestProject2.Pages
         private IWebElement WelcomeMessage => _driver.FindElement(WelcomeMessageLocator);
         private IWebElement ProfileDropdownButton => _driver.FindElement(ProfileDropdownButtonLocator);
         private IWebElement SignOutMessage => _driver.FindElement(SignOutMessageLocator);
+        private IWebElement CredentialInvalidMessage => _driver.FindElement(CredentialInvalidMessageLocator);
+        private IWebElement CreatedAccountMessage => _driver.FindElement(CreatedAccountMessageLocator);
 
         public LoginPage(IWebDriver driver) : base(driver)
         {
         }
 
         public void Login(string username, string password)
-        { 
+        {
             SignInButton.Click();
             UsernameInput.EnterText(username);
             PasswordInput.EnterText(password);
             LoginButton.Click();
         }
 
-        public (bool, string) IsLoggedIn()
+        private (bool, string) WaitForElementAndGetText(By locator)
         {
             try
             {
-                _driver.WaitForElement(WelcomeMessageLocator, TimeSpan.FromSeconds(TimeoutSeconds));
-                return (WelcomeMessage.Displayed, WelcomeMessage.Text);
+                _driver.WaitForElement(locator, TimeSpan.FromSeconds(TimeoutSeconds));
+                return (true, _driver.FindElement(locator).Text);
             }
             catch (WebDriverTimeoutException)
             {
                 return (false, string.Empty);
             }
+        }
+
+        public (bool, string) IsLoggedIn()
+        {
+            return WaitForElementAndGetText(WelcomeMessageLocator);
+        }
+
+        public bool IsLoggedOut()
+        {
+            return WaitForElementAndGetText(SignOutMessageLocator).Item1;
+        }
+
+        public (bool, string) IsCredentialInvalid()
+        {
+            return WaitForElementAndGetText(CredentialInvalidMessageLocator);
         }
 
         public void Logout()
@@ -57,17 +77,11 @@ namespace TestProject2.Pages
             SignInButton.Click();
         }
 
-        public bool IsLoggedOut()
+        public (bool, string) IsAccountCreated()
         {
-            try
-            {
-                _driver.WaitForElement(SignOutMessageLocator, TimeSpan.FromSeconds(TimeoutSeconds));
-            return SignOutMessage.Displayed;
-            }
-            catch (WebDriverTimeoutException)
-            {
-                return false;
-            }
-}
+            return WaitForElementAndGetText(CreatedAccountMessageLocator);
+
+        }
+
     }
 }
